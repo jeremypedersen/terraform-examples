@@ -1,0 +1,141 @@
+---
+# Tasks file for gitlab
+
+#
+# Download and install GitLab CE
+#
+- name: download gitlab ce repository setup script
+  get_url:
+    url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
+    dest: /tmp/script.deb.sh
+
+- name: run gitlab ce repository setup script
+  command: bash script.deb.sh
+  args: 
+    chdir: /tmp
+
+- name: install gitlab ce
+  apt:
+    force_apt_get: yes
+    name: gitlab-ce
+    state: latest
+
+# 
+# Install SSH packages
+# 
+- name: install ssl tools needed by gitlab
+  apt:
+    force_apt_get: yes
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - ca-certificates
+    - openssh-server
+
+#
+# Install postfix
+#
+- name: set postfix 'mailname'
+  debconf:
+    name: postifx 
+    question: "postfix/mailname" 
+    value: "{{ gitlab_hostname }}"
+    vtype: "string"
+
+- name: set postfix 'type'
+  debconf: 
+    name: postfix 
+    question: "postfix/main_mailer_type"
+    value: "'Internet Site'" 
+    vtype: "string"
+
+- name: install postfix
+  apt:
+    force_apt_get: yes
+    name: postfix 
+    state: latest
+
+#
+# Install backup tools (rsync and tar)
+# 
+- name: install rsync
+  apt:
+    force_apt_get: yes
+    name: rsync
+    state: latest
+
+- name: download latest 'tar'
+  unarchive:
+    src: http://ftp.gnu.org/gnu/tar/tar-latest.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: configure and install latest tar
+  script: files/install_tar.sh
+  args:
+    creates: /root/.ansible_tar_installed
+
+- name: install gdebi-core
+  apt: 
+    force_apt_get: yes
+    name: gdebi-core
+    state: latest
+
+#
+# Install and configure ossfs
+#
+- name: set up /etc/passwd-ossfs
+  template:
+    src: templates/passwd-ossfs.j2
+    dest: /etc/passwd-ossfs
+    mode: '640'
+
+- name: create oss bucket mount point
+  file:
+    path: /mnt/gitlab-bucket
+    state: 'directory'
+
+- name: download ossfs
+  get_url:
+    url: https://github.com/aliyun/ossfs/releases/download/v1.80.5/ossfs_1.80.5_ubuntu16.04_amd64.deb
+    dest: /tmp/ossfs_1.80.5_ubuntu16.04_amd64.deb
+
+- name: install ossfs
+  command: gdebi -n ossfs_1.80.5_ubuntu16.04_amd64.deb
+  args:
+    chdir: /tmp
+
+- name: create ossfs systemd service
+  template: 
+    src: templates/ossfs.service.j2
+    dest: /etc/systemd/user/ossfs.service
+
+- name: enable ossfs service
+  command: systemctl --user enable ossfs.service
+
+# 
+# Install gitlab configuration file and make first gitlab backup
+#
+- name: reboot machine
+  reboot:
+    post_reboot_delay: 10
+
+- name: update gitlab configuration file
+  template:
+    src: templates/gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+
+- name: reconfigure gitlab
+  command: gitlab-ctl reconfigure
+
+- name: run gitlab backup
+  command: gitlab-rake gitlab:backup:create
+
+#
+# Create cron job for automatic backup
+#
+- name: create gitlab backup cron job
+  script: files/create_backup_cron.sh
+  args:
+    creates: /root/.ansible_backup_cronjob_created

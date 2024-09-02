@@ -1,0 +1,13 @@
+# Account IDs
+root_uid = "your_root_uid"
+other_uid = "other_account_uid"
+
+# Access Keys and Secrets
+root_ak = "your_root_ak"
+root_secret = "your_root_secret"
+
+other_ak = "your_other_ak"
+other_secret = "your_other_secret"
+
+# Region (optional)
+# region = "ap-southeast-1

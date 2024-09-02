@@ -1,0 +1,17 @@
+---
+#
+# Set up GitLab and Sonar Machines
+#
+- name: install and configure gitlab
+  hosts: gitlab
+  remote_user: root
+  roles:
+    - common
+    - gitlab
+
+- name: install and configure sonarqube
+  hosts: sonar
+  remote_user: root
+  roles:
+    - common
+    - sonar

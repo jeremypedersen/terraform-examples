@@ -1,0 +1,9 @@
+# To use this file, simply rename it from terraform.tfvars.example to terraform.tfvars,
+# then fill in real values for your access key and secret
+access_key = "your_access_key"
+access_key_secret = "your_access_key_secret"
+db_password = "your_database_password"
+# Optional Variables
+# db_name = "" # Name of the ownCloud MySQL database (defaults to "ownclouddb")
+# db_username = "" # Name of the ownCloud user on the MySQL DB (defaults to "owncloud")
+# region = "" # Region to deploy in (defaults to Singapore)

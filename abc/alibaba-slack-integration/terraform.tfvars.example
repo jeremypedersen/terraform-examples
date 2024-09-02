@@ -1,0 +1,5 @@
+# To use this file, simply rename it from terraform.tfvars.example to terraform.tfvars,
+# then fill in real values for your access key and secret
+access_key = "your_access_key"
+access_key_secret = "your_access_key_secret"
+slack_webhook_url = "your_webhook_url"

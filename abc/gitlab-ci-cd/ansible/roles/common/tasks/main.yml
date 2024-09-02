@@ -1,0 +1,20 @@
+---
+# tasks file for role 'common'
+- name: update package cache
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: upgrade all packages
+  apt:
+    force_apt_get: yes
+    name: "*"
+    state: latest
+
+- name: enable unattended upgrades
+  script: files/unattended_upgrades.sh
+  args:
+    creates: /root/.ansible_unattended_upgrades_enabled
+  notify:
+    - restart machine

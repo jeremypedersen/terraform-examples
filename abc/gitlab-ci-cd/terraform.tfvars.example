@@ -1,0 +1,20 @@
+# Fill in the following values before running setup.sh or terraform plan/apply
+# WARNING: You need to set up DirectMail by hand, then copy paste the relevant
+# DirectMail settings from the DirectMail web console into the variables here
+# starting with "dm_" or "directmail_"
+access_key                = "your_access_key"
+access_key_secret         = "your_access_key_secret"
+domain                    = "your_domain.com"
+dm_ownership_host_record  = "aliyundm.mail"
+dm_ownership_record_value = "aae968d5ae8f4a9a93dd"
+dm_spf_host_record        = "mail"
+dm_spf_record_value       = "v=spf1 include:spfdm-ap-southeast-1.aliyun.com -all"
+dm_mx_host_record         = "mail"
+dm_mx_record_value        = "mxdm-ap-southeast-1.aliyun.com"
+dm_cname_host_record      = "dmtrace.mail"
+dm_cname_record_value     = "tracedm-ap-southeast-1.aliyuncs.com"
+directmail_email          = "gitlab@mail.your_domain.com"
+email_address             = "your_email@outlook.com"
+directmail_smtp_address   = "smtpdm-ap-southeast-1.aliyun.com"
+sonarqube_db_password     = "atahYeif1aiDae3Meigh" # At least 9 characters: 2 numbers, two uppercase letters, two lowercase letters
+sonarqube_db_username     = "sonarqube"

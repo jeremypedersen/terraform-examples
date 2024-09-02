@@ -1,0 +1,13 @@
+[Unit]
+Description=OSSFS mounts
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/ossfs {{ gitlab_bucket_name }} /mnt/gitlab-bucket -o allow_other -ourl=http://{{ gitlab_bucket_endpoint }}
+ExecStop=/bin/umount /mnt/gitlab-bucket
+
+[Install]
+WantedBy=default.target

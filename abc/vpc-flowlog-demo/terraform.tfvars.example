@@ -1,0 +1,6 @@
+# Required Variables
+access_key = ""
+access_key_secret = ""
+# Optional Variables
+# region = "" # Region to use (defaults to Hohhot, as this is one of the few regions with full VPC FlowLog support)
+# abc_image_id = "" # (OS disk image to use, defaults to ubuntu_18_04_64_20G_alibase_20190624.vhd)

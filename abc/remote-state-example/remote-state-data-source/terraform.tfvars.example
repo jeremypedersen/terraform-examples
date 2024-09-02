@@ -1,0 +1,4 @@
+remote_state_bucket = "your_tf_state_bucket"
+remote_state_key = "your_tf_state_file_name"
+remote_state_region = "your_tf_state_bucket_region_name"
+remote_role_arn = "your_ram_role_arn_for_bucket_access" # Hint, should look a bit like this: acs:ram::your_uid:role/your_role_name

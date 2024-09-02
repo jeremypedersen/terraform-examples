@@ -1,0 +1,9 @@
+# Required
+access_key = "your_access_key"
+access_key_secret = "your_access_key_secret"
+password = "windows_server_password"
+# Username and password for new non-admin user
+# Optional
+# region = "" # Region you'd like to deploy in (defaults to Singapore)
+# cidr_block = "" # CIDR block you'd like to use (defaults to 192.168.0.0/16)
+# system_image = "" # Windows Server system image to use

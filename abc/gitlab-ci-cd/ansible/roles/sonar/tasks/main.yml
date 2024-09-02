@@ -1,0 +1,140 @@
+---
+# tasks file for role 'sonar'
+
+# Install required SonarQube dependencies
+- name: install unzip, default-jdk, and postgresql-client, all needed by SonarQube
+  apt:
+    force_apt_get: yes
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - unzip
+    - default-jdk
+    - postgresql-client
+
+# Create SonarQube user and directory structure
+- name: add sonarqube user
+  command: adduser --system --no-create-home --group --disabled-login sonarqube
+
+- name: create sonarqube directory
+  file:
+    path: /opt/sonarqube
+    state: directory
+    owner: sonarqube
+    group: sonarqube
+
+- name: create sonarqube data directory
+  file:
+    path: /var/sonarqube/data
+    state: directory
+    owner: sonarqube
+    group: sonarqube
+
+- name: create sonarqube temp directory
+  file:
+    path: /var/sonarqube/temp
+    state: directory
+    owner: sonarqube
+    group: sonarqube
+
+# Download and install SonarQube
+- name: download sonarqube packages
+  get_url:
+    url: https://binaries.sonarsource.com/Distribution/sonarqube/{{ sonarqube_version }}.zip
+    dest: /opt/sonarqube/sonarqube.zip
+
+- name: unzip sonarqube package
+  shell: unzip sonarqube.zip && touch /root/.ansible_sonar_installed
+  args:
+    chdir: /opt/sonarqube
+    creates: /root/.ansible_sonar_installed
+
+- name: change ownership on newly unzipped files
+  command: chown -R sonarqube:sonarqube /opt/sonarqube
+
+- name: double-confirm correct ownership on /var/sonarqube and subdirectories
+  command: chown -R sonarqube:sonarqube /var/sonarqube
+
+- name: configure sonarqube
+  template: 
+    src: templates/sonar.properties.j2
+    dest: /opt/sonarqube/{{ sonarqube_version }}/conf/sonar.properties
+
+- name: create sonarqube sonarqube.service
+  template:
+    src: templates/sonarqube.service.j2
+    dest: /etc/systemd/system/sonarqube.service
+
+- name: increase max_map_count for elasticsearch
+  shell: echo "vm.max_map_count=262144" >> /etc/sysctl.conf && touch /root/.ansible_max_map_count_raised
+  args:
+    creates: /root/.ansible_max_map_count_raised
+
+- name: start sonarqube /etc/systemd/user/sonarqube.service
+  command: systemctl start sonarqube.service
+
+- name: enable sonarqube service to start at boot time
+  command: systemctl enable sonarqube.service
+
+# Configure HTTP reverse proxy
+- name: install software-properties-common
+  apt:
+    force_apt_get: yes
+    name: software-properties-common
+    state: latest
+
+- name: add certbot ppa
+  command: add-apt-repository -y ppa:certbot/certbot
+
+- name: update package cache
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: install nginx and certbot packages
+  apt:
+    force_apt_get: yes
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - nginx
+    - python-certbot-nginx
+
+- name: update nginx configuration
+  template: 
+    src: templates/sonarqube.j2
+    dest: /etc/nginx/sites-available/sonarqube
+
+- name: link sites-enabled to sites-available
+  command: ln -sf /etc/nginx/sites-available/sonarqube /etc/nginx/sites-enabled/sonarqube
+
+- name: remove nginx default configuration from sites-enabled
+  command: rm /etc/nginx/sites-enabled/default
+  args:
+    removes: /etc/nginx/sites-enabled/default
+
+- name: remove nginx default configuration from sites-available
+  command: rm /etc/nginx/sites-available/default
+  args:
+    removes: /etc/nginx/sites-available/default
+
+- name: restart nginx
+  command: systemctl restart nginx
+
+- name: run certbot to install SSL cert
+  command: certbot --nginx -d {{ sonarqube_domain }} -m {{ email_address }} --agree-tos -n
+  args:
+    creates: /etc/letsencrypt/live/{{ sonarqube_domain }}/fullchain.pem
+
+- name: restart nginx
+  command: systemctl restart nginx
+
+- name: enable nginx on boot 
+  command: systemctl enable nginx
+
+- name: reboot machine
+  reboot:
+    post_reboot_delay: 10

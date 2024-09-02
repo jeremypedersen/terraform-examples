@@ -1,0 +1,11 @@
+# To use this file, simply rename it from terraform.tfvars.example to terraform.tfvars,
+# then fill in real values for your access key and secret
+access_key = "your_access_key"
+access_key_secret = "your_access_key_secret"
+# Optional Variables
+# ssh_key_name = "" # Name of the SSH key for instance login (defaults to speed-test)
+# region = "" # Region in which to deploy our resources (defaults to Singapore)
+# zone = "" # Zone in which to deploy (depends on the region, so be sure to check https://www.alibabacloud.com for )
+# vpc_cidr_block = "" # VPC CIDR block (defaults to 192.168.0.0/16)
+# vswitch_cidr_block = "" # Default vSwitch CIDR block (defaults to 192.168.0.0/24)
+# os_type = "" # OS type (disk image) to use with our ECS instance, defaults to ubuntu_18_04_64_20G_alibase_20190624.vhd

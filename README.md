@@ -1,3 +1,6 @@
+- **Last Updated:** 2024-09-02
+- **Last Tested:** PENDING
+
 # Terraform Examples
 
 **WARNING: Code here has not been updated since late 2022.** Updates are coming, as time allows.

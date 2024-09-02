@@ -65,7 +65,7 @@ def handler(environ, start_response):
     logger.info(request_body)
 
     # URL of the Slack webhook
-    end_url = 'https://hooks.slack.com/services/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'
+    end_url = 'https://hooks.slack.com/services/your-webhook-url'
     headers = {'Content-type': 'application/json'}
 
     # Send message to slack
